@@ -14,7 +14,6 @@ class Mapping(object):
 		self.csv = csv
 		self.path = path
 
-
 	def read_csv(self):
 		
 		# Rename column names
