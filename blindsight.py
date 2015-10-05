@@ -33,15 +33,25 @@ class Mapping(object):
 		df = df.rename(columns=col_names)
 		return df
 
-	def sort(self,df):
-		pass 
+	def sort(self):
+		raw_df = pd.read_csv(self.path + self.csv)
+		df = pd.DataFrame({
+							'image' : raw_df['image'],
+							'location' : raw_df['location'],
+							'mirror' : raw_df['mirror'],
+							'response' : raw_df['response.rt'].apply(lambda x: float(x[x.find('[')+1:x.find(']')]))
+			})
+		df = df.sort(['location']) 
+		df = df.groupby(['location']).mean()
+		return df
 
 	def generate_matrix(self):
 		pass
 
 	# sorting the data and running a t-test
 
-test = Mapping('FULL_RTEbehtask_2015_Aug_02_1837.csv')
-print(test.read_csv())
+filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
+test = Mapping(filename)
+print(test.sort())
 
 
