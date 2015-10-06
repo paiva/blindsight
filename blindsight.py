@@ -14,6 +14,11 @@ class Mapping(object):
 		self.csv = csv
 		self.path = path
 
+	def get_type(self, val):
+		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
+			return 'Unilateral'
+		return 'Bilateral'
+
 	def read_csv(self):
 		
 		# Rename column names
@@ -39,16 +44,12 @@ class Mapping(object):
 							'image' : raw_df['image'],
 							'location' : raw_df['location'],
 							'mirror' : raw_df['mirror'],
-							'response' : raw_df['response.rt'].apply(lambda x: float(x[x.find('[')+1:x.find(']')]))
+							'response' : raw_df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
+							'type' : raw_df['location'].apply(self.get_type)
 			})
 		df = df.sort(['location']) 
-		df = df.groupby(['location']).mean()
-		return df
-
-	def group_uni_bi(self):
-		"""Groups Unilateral with bilateral counter part"""
-
-		pass
+		df = df.groupby(['location', 'mirror', 'type']).mean()
+		return df.tail(n=10)
 
 	def run_t_test(self):
 		""" Must compare results with a t-test """
