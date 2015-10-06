@@ -45,6 +45,15 @@ class Mapping(object):
 		df = df.groupby(['location']).mean()
 		return df
 
+	def group_uni_bi(self):
+		"""Groups Unilateral with bilateral counter part"""
+
+		pass
+
+	def run_t_test(self):
+		""" Must compare results with a t-test """
+		pass
+
 	def generate_matrix(self):
 		pass
 
