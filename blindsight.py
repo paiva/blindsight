@@ -6,6 +6,7 @@ __author__  = 'Loraine'
 __version__ = '1.0'
 
 import pandas as pd
+from math import sqrt
 from config import path
 
 class Mapping(object):
@@ -49,16 +50,29 @@ class Mapping(object):
 			})
 		df = df.sort(['location']) 
 		df = df.groupby(['location', 'mirror', 'type']).mean()
+		
+		self.run_t_test(df)
+
 		return df.tail(n=10)
 
-	def run_t_test(self):
-		""" Must compare results with a t-test """
-		pass
+	def run_t_test(self, df):
+		""" Student t-test
+			Parameters: 
+				x = sample mean
+				mu = specified value
+				s = sample standard deviation
+				n = sample size
+		"""
 
+		n = len(df.index)
+		x = df['response'].mean()
+		#t = (x - mu)/(s - sqrt(n))
+
+		print(n)
+		print(mean)
+		
 	def generate_matrix(self):
 		pass
-
-	# sorting the data and running a t-test
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 test = Mapping(filename)
