@@ -47,13 +47,11 @@ class Mapping(object):
 							'mirror' : raw_df['mirror'],
 							'response' : raw_df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
 							'type' : raw_df['location'].apply(self.get_type)
-			})
+						  })
 		df = df.sort(['location']) 
-		df = df.groupby(['location', 'mirror', 'type']).mean()
+		df = df.groupby(['location', 'type'], as_index=False).mean()
 		
-		self.run_t_test(df)
-
-		return df.tail(n=10)
+		return df 
 
 	def run_t_test(self, df):
 		""" Student t-test
@@ -69,13 +67,17 @@ class Mapping(object):
 		#t = (x - mu)/(s - sqrt(n))
 
 		print(n)
-		print(mean)
-		
+		print(x)
+
+		return df.head() 
+
 	def generate_matrix(self):
 		pass
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 test = Mapping(filename)
-print(test.sort())
+
+df = test.sort()
+df2 = test.run_t_test(df)
 
 
