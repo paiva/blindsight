@@ -11,14 +11,28 @@ from config import path
 
 class Mapping(object):
 
-	def __init__(self, csv):
+	def __init__(self,csv):
 		self.csv = csv
 		self.path = path
 
-	def get_type(self, val):
+	def get_type(self,val):
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
 			return 'Unilateral'
 		return 'Bilateral'
+
+
+	def get_t_test(self,df):
+
+		def get_mu(self,val):
+			pass
+		
+		n = len(df.index)
+		x = df['response'].mean()
+		
+		#t = (x - mu)/(s - sqrt(n))
+
+		print(n)
+		print(x)
 
 	def read_csv(self):
 		
@@ -62,14 +76,13 @@ class Mapping(object):
 				n = sample size
 		"""
 
-		n = len(df.index)
-		x = df['response'].mean()
-		#t = (x - mu)/(s - sqrt(n))
+		new_df = pd.DataFrame){ 'location' : df['location'],
+								'type' : df['type'],
+								'response' : df['response'],
+								't_test' : df['response'].apply(self.get_t_test(df))
+		})
 
-		print(n)
-		print(x)
-
-		return df.head() 
+		return new_df.head() 
 
 	def generate_matrix(self):
 		pass
