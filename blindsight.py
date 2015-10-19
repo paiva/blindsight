@@ -6,21 +6,25 @@ __author__  = 'Loraine'
 __version__ = '1.0'
 
 import pandas as pd
-from math import sqrt
 from config import path
 from scipy.stats import ttest_ind
 
-class Mapping(object):
+class RMapping(object):
 
 	def __init__(self,csv):
 		self.csv = csv
 		self.path = path
 
+	def get_x_coordinates(self,val):
+		return val[val.find('[') + 1 : val.find(',')]  
+
+	def get_y_coordinates(self,val):
+		return val[val.find(',')+1 : val.find(']')]
+
 	def get_type(self,val):
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
 			return 'Unilateral'
 		return 'Bilateral'
-
 
 	def get_t_test(self,df):
 
@@ -57,14 +61,16 @@ class Mapping(object):
 	def sort(self):
 		raw_df = pd.read_csv(self.path + self.csv)
 		df = pd.DataFrame({
+							'x' : raw_df['location'].apply(self.get_x_coordinates),
+							'y' : raw_df['location'].apply(self.get_y_coordinates),
 							'image' : raw_df['image'],
 							'location' : raw_df['location'],
 							'mirror' : raw_df['mirror'],
 							'response' : raw_df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
 							'type' : raw_df['location'].apply(self.get_type)
 						  })
-		df = df.sort(['location']) 
-		df = df.groupby(['location', 'type'], as_index=False).mean()
+		df = df.sort(['x']) 
+		df = df.groupby(['x','y','location','type'], as_index=False).mean()
 		
 		return df 
 
@@ -75,10 +81,12 @@ class Mapping(object):
 								'response' : df['response']
 		})
 
-		unilateral = data[data['type'] == 'unilateral']
-		bilateral = data[data['type'] == 'bilateral']
+		print(df)
+		unilateral = df[df['type'] == 'Unilateral']
+		bilateral = df[df['type'] == 'Bilateral']
      
 		ttest = ttest_ind(unilateral['response'], bilateral['response'], equal_var=False)
+		
 		if ttest[1] >= 0.95:
 			return(True, ttest)
 		else:
@@ -89,7 +97,7 @@ class Mapping(object):
 		pass
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
-test = Mapping(filename)
+test = RMapping(filename)
 
 df = test.sort()
 df2 = print(test.run_t_test(df))
