@@ -16,12 +16,15 @@ class RMapping(object):
 		self.path = path
 
 	def get_x_coordinates(self,val):
+		"""Gets x coordinate of Location"""
 		return val[val.find('[') + 1 : val.find(',')]  
 
 	def get_y_coordinates(self,val):
-		return val[val.find(',')+1 : val.find(']')]
+		"""Gets y coordinate of Location""" 
+		return val[val.find(',') +1 : val.find(']')]
 
 	def get_type(self,val):
+		"""Identifies Location type"""
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
 			return 'Unilateral'
 		return 'Bilateral'
@@ -36,12 +39,8 @@ class RMapping(object):
 		
 		#t = (x - mu)/(s - sqrt(n))
 
-		print(n)
-		print(x)
-
 	def read_csv(self):
 		
-		# Rename column names
 		col_names = { 
     					'trials.thisRepN' : 'trials_repn', 
     					'trials.thisTrialN' : 'trials_trialn',
@@ -53,12 +52,12 @@ class RMapping(object):
     					'expName' : 'exp_name'
 		}
 
-		# Read csv file into dataframe
 		df = pd.read_csv(self.path + self.csv)
 		df = df.rename(columns=col_names)
 		return df
 
 	def sort(self):
+
 		raw_df = pd.read_csv(self.path + self.csv)
 		df = pd.DataFrame({
 							'x' : raw_df['location'].apply(self.get_x_coordinates),
@@ -76,12 +75,6 @@ class RMapping(object):
 
 	def run_t_test(self, df):
 
-		data = pd.DataFrame({'location' : df['location'],
-								'type' : df['type'],
-								'response' : df['response']
-		})
-
-		print(df)
 		unilateral = df[df['type'] == 'Unilateral']
 		bilateral = df[df['type'] == 'Bilateral']
      
@@ -95,6 +88,8 @@ class RMapping(object):
 
 	def generate_matrix(self):
 		pass
+
+################## Run Test #########################
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 test = RMapping(filename)
