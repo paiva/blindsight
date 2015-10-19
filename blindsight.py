@@ -8,6 +8,7 @@ __version__ = '1.0'
 import pandas as pd
 from math import sqrt
 from config import path
+from scipy.stats import ttest_ind
 
 class Mapping(object):
 
@@ -68,21 +69,21 @@ class Mapping(object):
 		return df 
 
 	def run_t_test(self, df):
-		""" Student t-test
-			Parameters: 
-				x = sample mean
-				mu = specified value
-				s = sample standard deviation
-				n = sample size
-		"""
 
-		new_df = pd.DataFrame){ 'location' : df['location'],
+		data = pd.DataFrame({'location' : df['location'],
 								'type' : df['type'],
-								'response' : df['response'],
-								't_test' : df['response'].apply(self.get_t_test(df))
+								'response' : df['response']
 		})
 
-		return new_df.head() 
+		unilateral = data[data['type'] == 'unilateral']
+		bilateral = data[data['type'] == 'bilateral']
+     
+		ttest = ttest_ind(unilateral['response'], bilateral['response'], equal_var=False)
+		if ttest[1] >= 0.95:
+			return(True, ttest)
+		else:
+			return(False, ttest)
+		return dict(ttest = ttest)
 
 	def generate_matrix(self):
 		pass
@@ -91,6 +92,6 @@ filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 test = Mapping(filename)
 
 df = test.sort()
-df2 = test.run_t_test(df)
+df2 = print(test.run_t_test(df))
 
 
