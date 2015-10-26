@@ -63,22 +63,27 @@ class RMapping(object):
 		
 		return data 
 
-	def get_pval(self,df):   
+	def run_t_test(self,df):   
 
-		mydf = pd.DataFrame({
+		self.df = pd.DataFrame({
 							'location': df['location'],
 							'response_unilateral' : df['location'].apply(self.get_unilateral_response),
 							'response_bilateral'  : df['location'].apply(self.get_bilateral_response)
 						 })
 
-		mydf2 = pd.DataFrame({
-							'location': mydf['location'],
-							'response_unilateral' : mydf['response_unilateral'],
-							'response_bilateral'  : mydf['response_bilateral'],
-							't_test' : self.get_pval_values(mydf['response_unilateral'].apply(self.get_val),mydf['response_bilateral'].apply(self.get_val))
-						 })
+		#unilateral = self.df['response_unilateral']
+		#bilateral = self.df['response_bilateral']
+	
+		#mydf = pd.DataFrame({
+		#					'location': self.df['location'],
+		#					't_test' : ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
+		#				 })
 
-		return mydf2
+		
+		#print(ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
+		
+
+		return self.df
 
 		#if pval >= 0.95:
 		#	return(True, ttest)
@@ -96,6 +101,6 @@ trial = RMapping(filename)
 
 df = trial.read_csv()
 df2 = trial.sort(df)
-df3 = trial.get_pval(df2)
+df3 = trial.run_t_test(df2)
 print(df3)
 
