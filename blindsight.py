@@ -6,6 +6,7 @@ __author__  = 'Loraine'
 __version__ = '1.0'
 
 import pandas as pd
+import numpy as np
 from config import path
 from scipy.stats import ttest_ind
 
@@ -28,30 +29,32 @@ class RMapping(object):
 			return 'Unilateral'
 		return 'Bilateral'		
 
-	def get_unilateral(self,val):
-		print(self.df['response.rt'].where(self.df['location'] == val))
-		
-	def get_bilateral(self,val):
-		return self.df['response.rt']
+	def get_val(self,val):
+		return val
+
+	def get_unilateral_response(self,val):
+		response = self.df['response'].where(self.df['location'] == val).dropna().mean()
+		return response
+
+	def get_bilateral_response(self,val):
+		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
+			val = '[' + val[val.find('[') + 2 : val.find(']')] + ']' 
+		response = self.df['response'].where(self.df['location'] == val).dropna().mean()
+		return response
+
+	def get_pval_values(self,val1,val2):
+		return ttest_ind(val1, val2, equal_var=False)[1]
+
 
 	def read_csv(self):
 		
-		#df = pd.DataFrame({
-		#					'x' : raw_df['location'].apply(self.get_x_coordinate),
-		#					'y' : raw_df['location'].apply(self.get_y_coordinate),
-		#					'location' : raw_df['location'],
-		#					'response' : raw_df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
-		#					'type' : raw_df['location'].apply(self.get_type)
-		#				  })
-		
 		df = pd.DataFrame({
 							'location' : self.df['location'],
-							'unilateral_response' : self.df['location'].apply(self.get_unilateral)
-							#'bilateral_response' : self.df['location'].apply(self.get_bilateral)
+							'response' : self.df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
+							'type' : self.df['location'].apply(self.get_type)
 						  })
-		
-
-		return df
+		self.df = df
+		return self.df
 
 	def sort(self,df):
 
@@ -60,15 +63,22 @@ class RMapping(object):
 		
 		return data 
 
-	def get_pval(self, df):
+	def get_pval(self,df):   
 
-		unilateral = df[df['type'] == 'Unilateral']
-		bilateral = df[df['type'] == 'Bilateral']
-     
-		ttest = ttest_ind(unilateral['response'], bilateral['response'], equal_var=False)
-		pval = ttest[1]
+		mydf = pd.DataFrame({
+							'location': df['location'],
+							'response_unilateral' : df['location'].apply(self.get_unilateral_response),
+							'response_bilateral'  : df['location'].apply(self.get_bilateral_response)
+						 })
 
-		return pval
+		mydf2 = pd.DataFrame({
+							'location': mydf['location'],
+							'response_unilateral' : mydf['response_unilateral'],
+							'response_bilateral'  : mydf['response_bilateral'],
+							't_test' : self.get_pval_values(mydf['response_unilateral'].apply(self.get_val),mydf['response_bilateral'].apply(self.get_val))
+						 })
+
+		return mydf2
 
 		#if pval >= 0.95:
 		#	return(True, ttest)
@@ -84,8 +94,8 @@ class RMapping(object):
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 trial = RMapping(filename)
 
-df = trial.sort(trial.read_csv())
-print(df)
-#df2 = print(trial.run_t_test(df))
-
+df = trial.read_csv()
+df2 = trial.sort(df)
+df3 = trial.get_pval(df2)
+print(df3)
 
