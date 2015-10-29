@@ -7,6 +7,7 @@ __version__ = '1.0'
 
 import pandas as pd
 import numpy as np
+from math import sqrt, pow
 from config import path
 from scipy.stats import ttest_ind
 
@@ -29,9 +30,6 @@ class RMapping(object):
 			return 'Unilateral'
 		return 'Bilateral'		
 
-	def get_val(self,val):
-		return val
-
 	def get_unilateral_response(self,val):
 		response = self.df['response'].where(self.df['location'] == val).dropna().mean()
 		return response
@@ -45,7 +43,6 @@ class RMapping(object):
 	def get_pval_values(self,val1,val2):
 		return ttest_ind(val1, val2, equal_var=False)[1]
 
-
 	def read_csv(self):
 		
 		df = pd.DataFrame({
@@ -54,13 +51,16 @@ class RMapping(object):
 							'type' : self.df['location'].apply(self.get_type)
 						  })
 		self.df = df
+
 		return self.df
 
 	def sort(self,df):
 
+		#pivot = df.pivot(index='type', columns='location', values='response')
 		data = df.sort(['location']) 
-		data = df.groupby(['location','type'], as_index=False).mean()
+		#data = df.groupby(['location', 'type'], as_index=False).mean()
 		
+		#print(pivot)
 		return data 
 
 	def run_t_test(self,df):   
@@ -71,28 +71,26 @@ class RMapping(object):
 							'response_bilateral'  : df['location'].apply(self.get_bilateral_response)
 						 })
 
-		#unilateral = self.df['response_unilateral']
-		#bilateral = self.df['response_bilateral']
+		#unilateral_mean = self.df['response_unilateral'].mean()
+		#bilateral_mean = self.df['response_bilateral'].mean()
 	
+
+		#df_1 = 8-1
+		#df_2 = 8-1
+		#SS_1 = 
+		#SS_2 = 
+		#pooled_variance = pow(((SS_1 + SS_2)/(df_1 + df_2)),2)
+		#standard_error_of_mean = sqrt((pooled_variance/population_1) + (pooled_variance/polulation_2))
+		#t = (unilateral_mean - bilateral_mean)/ standard_error_of_mean
 		#mydf = pd.DataFrame({
 		#					'location': self.df['location'],
 		#					't_test' : ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
 		#				 })
 
 		
-		#print(ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
-		
+		print(ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
 
 		return self.df
-
-		#if pval >= 0.95:
-		#	return(True, ttest)
-		#else:
-		#	return(False, ttest)
-		#return dict(ttest = ttest)
-
-	def generate_matrix(self):
-		pass
 
 ################## Run Test #########################
 
@@ -101,6 +99,7 @@ trial = RMapping(filename)
 
 df = trial.read_csv()
 df2 = trial.sort(df)
+#print(df2)
 df3 = trial.run_t_test(df2)
 print(df3)
 
