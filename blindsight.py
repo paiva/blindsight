@@ -16,13 +16,17 @@ class RMapping(object):
 	def __init__(self,filename):
 		self.df = pd.read_csv(path + filename)
 		
+	def print_df(self):
+		with pd.option_context('display.max_rows', 999, 'display.max_columns', 7):
+			print(self.df)
+
 	def get_x_coordinate(self,val):
 		"""Gets x coordinate of Location"""
-		return val[val.find('[') + 1 : val.find(',')]  
+		return float(val[val.find('[') + 1 : val.find(',')])
 
 	def get_y_coordinate(self,val):
 		"""Gets y coordinate of Location""" 
-		return val[val.find(',') +1 : val.find(']')]
+		return float(val[val.find(',') +1 : val.find(']')])
 
 	def get_type(self,val):
 		"""Identifies Location type"""
@@ -45,23 +49,21 @@ class RMapping(object):
 
 	def read_csv(self):
 		
-		df = pd.DataFrame({
+		self.df = pd.DataFrame({
+							'x_coordinate': self.df['location'].apply(self.get_x_coordinate),
+							'y_coordinate': self.df['location'].apply(self.get_y_coordinate),
 							'location' : self.df['location'],
 							'response' : self.df['response.rt'].map(lambda x: float(x[x.find('[')+1:x.find(']')])),
 							'type' : self.df['location'].apply(self.get_type)
 						  })
-		self.df = df
-
 		return self.df
 
-	def sort(self,df):
+	def sort(self):
 
-		#pivot = df.pivot(index='type', columns='location', values='response')
-		data = df.sort(['location']) 
+		self.df = self.df.sort('x_coordinate')
 		#data = df.groupby(['location', 'type'], as_index=False).mean()
 		
-		#print(pivot)
-		return data 
+		return self.df 
 
 	def run_t_test(self,df):   
 
@@ -97,9 +99,8 @@ class RMapping(object):
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 trial = RMapping(filename)
 
-df = trial.read_csv()
-df2 = trial.sort(df)
-#print(df2)
-df3 = trial.run_t_test(df2)
-print(df3)
+trial.read_csv()
+trial.sort()
+trial.print_df()
+#df3 = trial.run_t_test(df2)
 
