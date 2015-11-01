@@ -67,13 +67,17 @@ class RMapping(object):
 
 			# 1- Get Unilateral Responses
 			if sign is not '-':
-				location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
-			unilateral_responses = self.df['response'].where(self.df['location'] == location).dropna().tolist()
+				unilateral_location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
+			elif sign is '-':
+				unilateral_location = location
+			unilateral_responses = self.df['response'].where(self.df['location'] == unilateral_location).dropna().tolist()
 
 			# 2- Get Bilateral Responses
 			if sign is '-':
-				location = '[' + str(x_coordinate) + ', ' + str(y_coordinate) + ']' 
-			bilateral_responses = self.df['response'].where(self.df['location'] == location).dropna().tolist()#.astype(float)
+				bilateral_location = '[' + str(x_coordinate) + ', ' + str(y_coordinate) + ']' 
+			elif sign is not '-':
+				bilateral_location = location
+			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()#.astype(float)
 
 			dic = {	'location': location,
 					'unilateral_responses' : unilateral_responses,
