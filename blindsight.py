@@ -7,7 +7,6 @@ __version__ = '1.0'
 
 import pandas as pd
 import numpy as np
-from math import sqrt, pow
 from config import path
 from scipy.stats import ttest_ind
 
@@ -15,10 +14,10 @@ class RMapping(object):
 
 	def __init__(self,filename):
 		self.df = pd.read_csv(path + filename)
+		self.locations = self.df['location'].unique().tolist()
 		
 	def print_df(self):
-		with pd.option_context('display.max_rows', 999, 'display.max_columns', 7):
-			print(self.df)
+		print(self.df)
 
 	def get_x_coordinate(self,val):
 		"""Gets x coordinate of Location"""
@@ -31,11 +30,11 @@ class RMapping(object):
 	def get_type(self,val):
 		"""Identifies Location type"""
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
-			return 'Unilateral'
-		return 'Bilateral'		
+			return 'unilateral'
+		return 'bilateral'		
 
 	def get_unilateral_response(self,val):
-		response = self.df['response'].where(self.df['location'] == val).dropna().mean()
+		response = self.df['response'].where(self.df['location'] == val).dropna()
 		return response
 
 	def get_bilateral_response(self,val):
@@ -60,37 +59,18 @@ class RMapping(object):
 
 	def sort(self):
 
-		self.df = self.df.sort('x_coordinate')
-		#data = df.groupby(['location', 'type'], as_index=False).mean()
-		
-		return self.df 
+		self.df = self.df.sort(['x_coordinate', 'y_coordinate'], ascending=[1,1])
+		self.df = self.df[['location','type','response']]
 
-	def run_t_test(self,df):   
+		return self.df
+
+	def run_t_test(self):   
 
 		self.df = pd.DataFrame({
-							'location': df['location'],
-							'response_unilateral' : df['location'].apply(self.get_unilateral_response),
-							'response_bilateral'  : df['location'].apply(self.get_bilateral_response)
+							'location': self.df['location'],
+							'response_unilateral' : self.df['location'].apply(self.get_unilateral_response),
+							'response_bilateral'  : self.df['location'].apply(self.get_bilateral_response)
 						 })
-
-		#unilateral_mean = self.df['response_unilateral'].mean()
-		#bilateral_mean = self.df['response_bilateral'].mean()
-	
-
-		#df_1 = 8-1
-		#df_2 = 8-1
-		#SS_1 = 
-		#SS_2 = 
-		#pooled_variance = pow(((SS_1 + SS_2)/(df_1 + df_2)),2)
-		#standard_error_of_mean = sqrt((pooled_variance/population_1) + (pooled_variance/polulation_2))
-		#t = (unilateral_mean - bilateral_mean)/ standard_error_of_mean
-		#mydf = pd.DataFrame({
-		#					'location': self.df['location'],
-		#					't_test' : ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
-		#				 })
-
-		
-		print(ttest_ind(self.df['response_unilateral'], self.df['response_bilateral']))
 
 		return self.df
 
@@ -102,5 +82,5 @@ trial = RMapping(filename)
 trial.read_csv()
 trial.sort()
 trial.print_df()
-#df3 = trial.run_t_test(df2)
+#trial.run_t_test()
 
