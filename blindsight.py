@@ -39,6 +39,9 @@ class RMapping(object):
 			return 'unilateral'
 		return 'bilateral'		
 
+	def get_pvalues(self):
+		return self.df[['location','pval']]
+
 	def read_csv(self):
 		
 		self.df = pd.DataFrame({
@@ -98,5 +101,6 @@ trial = RMapping(filename)
 trial.read_csv()
 trial.sort()
 trial.get_responses()
-trial.print_df()
+print(trial.get_pvalues())
+#trial.print_df()
 
