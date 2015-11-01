@@ -19,32 +19,25 @@ class RMapping(object):
 	def print_df(self):
 		print(self.df)
 
+	def get_sign(self,val):
+		"""Gets the x sign of the location"""
+		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
+			return '-'
+		return '+'
+
 	def get_x_coordinate(self,val):
 		"""Gets x coordinate of Location"""
 		return float(val[val.find('[') + 1 : val.find(',')])
 
 	def get_y_coordinate(self,val):
 		"""Gets y coordinate of Location""" 
-		return float(val[val.find(',') +1 : val.find(']')])
+		return float(val[val.find(',') + 1 : val.find(']')])
 
 	def get_type(self,val):
 		"""Identifies Location type"""
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
 			return 'unilateral'
 		return 'bilateral'		
-
-	def get_unilateral_response(self,val):
-		response = self.df['response'].where(self.df['location'] == val).dropna()
-		return response
-
-	def get_bilateral_response(self,val):
-		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
-			val = '[' + val[val.find('[') + 2 : val.find(']')] + ']' 
-		response = self.df['response'].where(self.df['location'] == val).dropna().mean()
-		return response
-
-	def get_pval_values(self,val1,val2):
-		return ttest_ind(val1, val2, equal_var=False)[1]
 
 	def read_csv(self):
 		
@@ -64,15 +57,34 @@ class RMapping(object):
 
 		return self.df
 
-	def run_t_test(self):   
+	def get_responses(self):
+		
+		responses = []
+		for location in self.locations:
+			sign = self.get_sign(location)
+			x_coordinate = self.get_x_coordinate(location)
+			y_coordinate = self.get_y_coordinate(location)
 
-		self.df = pd.DataFrame({
-							'location': self.df['location'],
-							'response_unilateral' : self.df['location'].apply(self.get_unilateral_response),
-							'response_bilateral'  : self.df['location'].apply(self.get_bilateral_response)
-						 })
+			# 1- Get Unilateral Responses
+			if sign is not '-':
+				location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
+			unilateral_responses = self.df['response'].where(self.df['location'] == location).dropna().tolist()
 
+			# 2- Get Bilateral Responses
+			if sign is '-':
+				location = '[' + str(x_coordinate) + ', ' + str(y_coordinate) + ']' 
+			bilateral_responses = self.df['response'].where(self.df['location'] == location).dropna().tolist()#.astype(float)
+
+			dic = {	'location': location,
+					'unilateral_responses' : unilateral_responses,
+					'bilateral_responses' : bilateral_responses,
+					'pval' : ttest_ind(unilateral_responses, bilateral_responses)[1]}
+			
+			responses.append(dic)
+		
+		self.df = pd.DataFrame(responses) 
 		return self.df
+
 
 ################## Run Test #########################
 
@@ -81,6 +93,6 @@ trial = RMapping(filename)
 
 trial.read_csv()
 trial.sort()
+trial.get_responses()
 trial.print_df()
-#trial.run_t_test()
 
