@@ -101,6 +101,6 @@ trial = RMapping(filename)
 trial.read_csv()
 trial.sort()
 trial.get_responses()
-print(trial.get_pvalues())
-#trial.print_df()
+trial.get_pvalues()
+trial.print_df()
 
