@@ -19,6 +19,9 @@ class RMapping(object):
 	def print_df(self):
 		print(self.df)
 
+	def count_pval(self):
+		print(self.df.where(self.df['pval'] >= 0.950000))
+
 	def get_sign(self,val):
 		"""Gets the x sign of the location"""
 		if val[val.find('[') + 1 : val.find('[') + 2] is '-':
@@ -68,27 +71,28 @@ class RMapping(object):
 			x_coordinate = self.get_x_coordinate(location)
 			y_coordinate = self.get_y_coordinate(location)
 
+
 			# 1- Get Unilateral Responses
-			if sign is not '-':
-				unilateral_location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
-			elif sign is '-':
+			if sign is '-':
+				unilateral_location = '[' + str(abs(x_coordinate)) + ', ' + str(y_coordinate) + ']' 
+			elif sign is not '-':
 				unilateral_location = location
-			unilateral_responses = self.df['response'].where(self.df['location'] == unilateral_location).dropna().tolist()
+			unilateral_responses = self.df['response'].where(self.df['location'] == unilateral_location).dropna().tolist()#.astype(float)
 
 			# 2- Get Bilateral Responses
-			if sign is '-':
-				bilateral_location = '[' + str(x_coordinate) + ', ' + str(y_coordinate) + ']' 
-			elif sign is not '-':
+			if sign is not '-':
+				bilateral_location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
+			elif sign is '-':
 				bilateral_location = location
-			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()#.astype(float)
+			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()
 
 			dic = {	'location': location,
 					'unilateral_responses' : unilateral_responses,
 					'bilateral_responses' : bilateral_responses,
 					'pval' : ttest_ind(unilateral_responses, bilateral_responses)[1]}
 			
-			responses.append(dic)
-		
+			responses.append(dic)			
+
 		self.df = pd.DataFrame(responses) 
 		return self.df
 
@@ -101,6 +105,5 @@ trial = RMapping(filename)
 trial.read_csv()
 trial.sort()
 trial.get_responses()
-trial.get_pvalues()
 trial.print_df()
-
+#trial.count_pval()
