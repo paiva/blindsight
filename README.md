@@ -1,7 +1,16 @@
 # Blindsigh
 
-Python script that finds blindsight islands. 
+Python script that finds blindsight islands based on p-values   
 
-Todos:
-* Group the unilateral with bilateral counterparts (ie: 12.25, -1.25 with -12.25,-1.25)
-* Run a t-test to see if the averages for those two are significantly different
+Requirements: install `pip install requirements.txt`
+
+Data (a csv file) is coming from another script implementing psychopy which is not included in this repository. The data directory is specified in the `config.py` file. 
+
+To get the p-values of the dataset run
+
+	python blinsight.py
+
+
+# License
+
+MIT

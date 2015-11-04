@@ -6,7 +6,6 @@ __author__  = 'Loraine'
 __version__ = '1.0'
 
 import pandas as pd
-import numpy as np
 from config import path
 from scipy.stats import ttest_ind
 
@@ -96,14 +95,11 @@ class RMapping(object):
 		self.df = pd.DataFrame(responses) 
 		return self.df
 
-
-################## Run Test #########################
+	def run(self):
+		self.read_csv()
+		self.sort()
+		self.get_responses()
+		self.print_df()
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
-trial = RMapping(filename)
-
-trial.read_csv()
-trial.sort()
-trial.get_responses()
-#trial.print_df()
-#trial.count_pval()
+RMapping(filename).run()

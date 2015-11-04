@@ -1,6 +1,9 @@
-__pycache__/*
+# Python Stuff
+__pycache__/
+*.pyc
+
+# Files
 data/*
-sample.txt
 bilateraltestAS.xlsx
 blackdot.PNG
 psychopy.py
