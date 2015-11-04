@@ -20,7 +20,7 @@ class RMapping(object):
 		print(self.df)
 
 	def count_pval(self):
-		print(self.df.where(self.df['pval'] >= 0.950000))
+		print(self.df.groupby('pval').count())
 
 	def get_sign(self,val):
 		"""Gets the x sign of the location"""
@@ -105,5 +105,5 @@ trial = RMapping(filename)
 trial.read_csv()
 trial.sort()
 trial.get_responses()
-trial.print_df()
+#trial.print_df()
 #trial.count_pval()
