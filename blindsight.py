@@ -71,25 +71,27 @@ class RMapping(object):
 			y_coordinate = self.get_y_coordinate(location)
 
 
+
 			# 1- Get Unilateral Responses
-			if sign is '-':
-				unilateral_location = '[' + str(abs(x_coordinate)) + ', ' + str(y_coordinate) + ']' 
-			elif sign is not '-':
+			if sign is not '-':
+				unilateral_location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
+			elif sign is '-':
 				unilateral_location = location
-			unilateral_responses = self.df['response'].where(self.df['location'] == unilateral_location).dropna().tolist()#.astype(float)
+			unilateral_responses = self.df['response'].where(self.df['location'] == unilateral_location).dropna().tolist()
 
 			# 2- Get Bilateral Responses
-			if sign is not '-':
-				bilateral_location = '[' + '-' + str(x_coordinate) + ', ' + str(y_coordinate) + ']'
-			elif sign is '-':
+			if sign is '-':
+				bilateral_location = '[' + str(abs(x_coordinate)) + ', ' + str(y_coordinate) + ']' 
+			elif sign is not '-':
 				bilateral_location = location
-			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()
+			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()#.astype(float)
+
 
 			dic = {	'location': location,
 					'unilateral_responses' : unilateral_responses,
 					'bilateral_responses' : bilateral_responses,
 					'pval' : ttest_ind(unilateral_responses, bilateral_responses)[1]}
-			
+
 			responses.append(dic)			
 
 		self.df = pd.DataFrame(responses) 
