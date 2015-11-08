@@ -57,7 +57,7 @@ class RMapping(object):
 
 	def sort(self):
 
-		self.df = self.df.sort(['x_coordinate', 'y_coordinate'], ascending=[1,1])
+		self.df = self.df.sort_values(by=['x_coordinate', 'y_coordinate'], ascending=[1,1])
 		self.df = self.df[['location','type','response']]
 
 		return self.df
@@ -69,8 +69,6 @@ class RMapping(object):
 			sign = self.get_sign(location)
 			x_coordinate = self.get_x_coordinate(location)
 			y_coordinate = self.get_y_coordinate(location)
-
-
 
 			# 1- Get Unilateral Responses
 			if sign is not '-':
@@ -84,24 +82,27 @@ class RMapping(object):
 				bilateral_location = '[' + str(abs(x_coordinate)) + ', ' + str(y_coordinate) + ']' 
 			elif sign is not '-':
 				bilateral_location = location
-			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()#.astype(float)
+			bilateral_responses = self.df['response'].where(self.df['location'] == bilateral_location).dropna().tolist()
 
 
 			dic = {	'location': location,
 					'unilateral_responses' : unilateral_responses,
 					'bilateral_responses' : bilateral_responses,
-					'pval' : ttest_ind(unilateral_responses, bilateral_responses)[1]}
+					'pval' : ttest_ind(unilateral_responses, bilateral_responses)[1]
+				  }
 
 			responses.append(dic)			
 
-		self.df = pd.DataFrame(responses) 
+		self.df = pd.DataFrame(responses).sort_values(by='pval')
+		print(self.df.drop_duplicates('bilateral_responses'))
+		#self.df = self.df.drop_duplicates(subset=['bilateral_responses','unilateral_responses'], take_last=True)
 		return self.df
 
 	def run(self):
 		self.read_csv()
 		self.sort()
-		self.get_responses()
-		self.print_df()
+		self.get_responses()#.to_csv('ugh.csv')
+		#self.print_df()
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 RMapping(filename).run()
