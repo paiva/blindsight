@@ -93,16 +93,13 @@ class RMapping(object):
 
 			responses.append(dic)			
 
-		self.df = pd.DataFrame(responses).sort_values(by='pval')
-		print(self.df.drop_duplicates('bilateral_responses'))
-		#self.df = self.df.drop_duplicates(subset=['bilateral_responses','unilateral_responses'], take_last=True)
+		self.df = pd.DataFrame(responses).sort_values(by='pval').drop_duplicates(['pval'])
 		return self.df
 
 	def run(self):
 		self.read_csv()
 		self.sort()
-		self.get_responses()#.to_csv('ugh.csv')
-		#self.print_df()
+		self.get_responses().to_csv('blindsight.csv')
 
 filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
 RMapping(filename).run()
