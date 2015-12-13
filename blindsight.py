@@ -9,7 +9,7 @@ import pandas as pd
 from config import path
 from scipy.stats import ttest_ind
 
-class RMapping(object):
+class FirstExperiment(object):
 
 	def __init__(self,filename):
 		self.df = pd.read_csv(path + filename)
@@ -101,5 +101,44 @@ class RMapping(object):
 		self.sort()
 		self.get_responses().to_csv('blindsight.csv')
 
-filename = 'FULL_RTEbehtask_2015_Aug_02_1837.csv'
-RMapping(filename).run()
+
+class SecondExperiment(object):
+
+	def __init__(self, filename):
+		self.df = pd.read_csv(path + filename)
+
+	def get_x_coordinate(self,val):
+		"""Gets x coordinate of Location"""
+		return float(val[val.find('[') + 1 : val.find(',')])
+
+	def get_y_coordinate(self,val):
+		"""Gets y coordinate of Location""" 
+		return float(val[val.find(',') + 1 : val.find(']')])
+
+	def read_csv(self):
+
+		self.df = pd.DataFrame({
+							'x_coordinate': self.df['location'].apply(self.get_x_coordinate),
+							'y_coordinate': self.df['location'].apply(self.get_y_coordinate),
+							'location' : self.df['location'],
+							'correct_response': self.df['corrResp'],
+							'given_response' : self.df['response.keys'].map(lambda x: str(x[x.find('[')+2:x.find(']')-1]))
+						  })
+		return self.df
+
+
+	def sort(self):
+
+		self.df = self.df.sort_values(by=['x_coordinate', 'y_coordinate'], ascending=[1,1])
+		self.df = self.df[['location','correct_response','given_response']]
+
+		return self.df
+
+	def run(self):
+		self.read_csv()
+		self.sort()
+
+### Running Files
+
+#FirstExperiment('FULL_RTEbehtask_2015_Aug_02_1837.csv').run()
+SecondExperiment('FULL_SameDifftest_2015_Aug_02_1929.csv').run()
