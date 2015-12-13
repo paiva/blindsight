@@ -106,6 +106,7 @@ class SecondExperiment(object):
 
 	def __init__(self, filename):
 		self.df = pd.read_csv(path + filename)
+		self.locations = self.df['location'].unique().tolist()
 
 	def get_x_coordinate(self,val):
 		"""Gets x coordinate of Location"""
@@ -134,9 +135,39 @@ class SecondExperiment(object):
 
 		return self.df
 
+
+	def calculate_percentages(self, list_1, list_2):
+
+		count = 0
+		for i,j in zip(list_1,list_2):
+			if i == j:
+				count = count + 1
+
+		return (count/5)*100
+
+	def get_responses(self):
+		
+		responses = []
+		for location in self.locations:
+
+			correct_responses = self.df['correct_response'].where(self.df['location'] == location).dropna().tolist()
+			given_responses = self.df['given_response'].where(self.df['location'] == location).dropna().tolist()
+
+			dic = {	'location': location,
+					'correct_responses' : correct_responses,
+					'given_responses' : given_responses,
+					'percentage' : self.calculate_percentages(correct_responses,given_responses)
+				  }
+
+			responses.append(dic)			
+
+		self.df = pd.DataFrame(responses).sort_values(by='location')
+		return self.df
+
 	def run(self):
 		self.read_csv()
 		self.sort()
+		print(self.get_responses())
 
 ### Running Files
 
