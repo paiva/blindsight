@@ -167,7 +167,7 @@ class SecondExperiment(object):
 	def run(self):
 		self.read_csv()
 		self.sort()
-		print(self.get_responses())
+		self.get_responses().to_csv('responses.csv')
 
 ### Running Files
 
