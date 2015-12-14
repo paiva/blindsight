@@ -131,7 +131,7 @@ class SecondExperiment(object):
 	def sort(self):
 
 		self.df = self.df.sort_values(by=['x_coordinate', 'y_coordinate'], ascending=[1,1])
-		self.df = self.df[['location','correct_response','given_response']]
+		self.df = self.df[['location','correct_responses','given_responses', 'percentage']]
 
 		return self.df
 
@@ -161,13 +161,16 @@ class SecondExperiment(object):
 
 			responses.append(dic)			
 
-		self.df = pd.DataFrame(responses).sort_values(by='location')
+		self.df = pd.DataFrame(responses)
+		self.df['x_coordinate'] = self.df['location'].apply(self.get_x_coordinate)
+		self.df['y_coordinate'] = self.df['location'].apply(self.get_y_coordinate)
+							
 		return self.df
 
 	def run(self):
 		self.read_csv()
-		self.sort()
-		self.get_responses().to_csv('responses.csv')
+		self.get_responses()
+		self.sort().to_csv('responses.csv')
 
 ### Running Files
 
